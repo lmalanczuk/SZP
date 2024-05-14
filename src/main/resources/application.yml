@@ -8,9 +8,9 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/tutorials
+    url: jdbc:postgresql://localhost:5432/registration
     username: postgres
-    password: 1234
+    password: 1qaz#EDC
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
