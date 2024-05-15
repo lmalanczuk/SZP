@@ -2,76 +2,73 @@ package com.example.SZP.tutorialsContorller;
 
 import com.example.SZP.test.Tutorial;
 import com.example.SZP.test.TutorialRepository;
+import com.example.SZP.appuser.AppUser;
+import com.example.SZP.appuser.AppUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-//@CrossOrigin(origins = "http://localhost:8080")       old version, trying to delete this statement
-@SpringBootApplication
 @RestController
-//@RequestMapping("/api/v1/tutorials")
-//@RequestMapping(value = "/api/v1")
+@RequestMapping("/api/v1") // Ustawiamy wspólną ścieżkę dla wszystkich endpointów kontrolera
 public class TutorialController {
 
     @Autowired
-    TutorialRepository tutorialRepository;
+    private TutorialRepository tutorialRepository;
 
-    @GetMapping("/api/v1/tutorials")
+    @Autowired
+    private AppUserRepository appUserRepository;
+
+    /*@GetMapping("/tutorials")
     public ResponseEntity<List<Tutorial>> getAllTutorials(@RequestParam(required = false) String title) {
         try {
-            List<Tutorial> tutorials = new ArrayList<Tutorial>();
-
-            if (title == null)
-                tutorialRepository.findAll().forEach(tutorials::add);
-            else
-                tutorialRepository.findByTitleContaining(title).forEach(tutorials::add);
-
+            List<Tutorial> tutorials;
+            if (title == null) {
+                tutorials = tutorialRepository.findAll();
+            } else {
+                tutorials = tutorialRepository.findByTitleContaining(title);
+            }
             if (tutorials.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
-
             return new ResponseEntity<>(tutorials, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }*/
+      @GetMapping("/tutorials")
+    public String getAllTutorials(Model model) {
+        model.addAttribute("tutorials", tutorialRepository.findAll());
+        return "tutorials"; // zwróć nazwę szablonu Thymeleaf
     }
 
-    @GetMapping("/api/v1/tutorials/{id}")
+
+    @GetMapping("/tutorials/{id}")
     public ResponseEntity<Tutorial> getTutorialById(@PathVariable("id") long id) {
         Optional<Tutorial> tutorialData = tutorialRepository.findById(id);
-
-        if (tutorialData.isPresent()) {
-            return new ResponseEntity<>(tutorialData.get(), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        return tutorialData.map(tutorial -> new ResponseEntity<>(tutorial, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @PostMapping("/api/v1/tutorials")     //próbuje się odwołać do PostMapping na początku klasy
-    @Secured("permitAll()")
+    @PostMapping("/tutorials")
+    @Secured("permitAll()") // Pozwól na dostęp do tej metody wszystkim użytkownikom, możesz dostosować to do swoich wymagań bezpieczeństwa
     public ResponseEntity<Tutorial> createTutorial(@RequestBody Tutorial tutorial) {
         try {
-            Tutorial _tutorial = tutorialRepository
-                    .save(new Tutorial(tutorial.getTitle(), tutorial.getDescription(), false));
-            // return new ResponseEntity<>(_tutorial, HttpStatus.CREATED);      old version
-            return ResponseEntity.status(HttpStatus.CREATED).body(_tutorial);
+            Tutorial _tutorial = tutorialRepository.save(new Tutorial(tutorial.getTitle(), tutorial.getDescription(), false));
+            return new ResponseEntity<>(_tutorial, HttpStatus.CREATED);
         } catch (Exception e) {
-            // return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);     old version
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PutMapping("/tutorials/{id}")
     public ResponseEntity<Tutorial> updateTutorial(@PathVariable("id") long id, @RequestBody Tutorial tutorial) {
         Optional<Tutorial> tutorialData = tutorialRepository.findById(id);
-
         if (tutorialData.isPresent()) {
             Tutorial _tutorial = tutorialData.get();
             _tutorial.setTitle(tutorial.getTitle());
@@ -101,18 +98,16 @@ public class TutorialController {
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
 
-    @GetMapping("/tutorials/published")
-    public ResponseEntity<List<Tutorial>> findByPublished() {
+    @GetMapping("/tutorials-users")
+    public ResponseEntity<List<AppUser>> getAllUsers() {
         try {
-            List<Tutorial> tutorials = tutorialRepository.findByPublished(true);
-
-            if (tutorials.isEmpty()) {
+            List<AppUser> users = appUserRepository.findAll();
+            if (users.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
-            return new ResponseEntity<>(tutorials, HttpStatus.OK);
+            return new ResponseEntity<>(users, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }

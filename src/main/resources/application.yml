@@ -20,7 +20,11 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
     show-sql: true
-
+  thymeleaf:
+    prefix: classpath:/templates/  # Ścieżka do folderu zawierającego szablony Thymeleaf
+    suffix: .html  # Rozszerzenie plików szablonów Thymeleaf
+    cache: false  # Ustawienie cache na false, aby zapewnić dynamiczną aktualizację szablonów podczas rozwoju
+    mode: HTML5  # Tryb HTML5 dla Thymeleaf
   mail:
     host: localhost
     port: 1025
