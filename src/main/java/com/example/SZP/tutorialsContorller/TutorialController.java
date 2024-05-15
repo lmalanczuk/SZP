@@ -23,7 +23,7 @@ public class TutorialController {
     @Autowired
     TutorialRepository tutorialRepository;
 
-    @GetMapping("/tutorials")
+    @GetMapping("/api/v1/tutorials")
     public ResponseEntity<List<Tutorial>> getAllTutorials(@RequestParam(required = false) String title) {
         try {
             List<Tutorial> tutorials = new ArrayList<Tutorial>();

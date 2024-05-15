@@ -14,6 +14,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 
 @SuppressWarnings("ALL")
 @Configuration
@@ -27,6 +28,7 @@ public class WebSecurityConfig implements WebSecurityCustomizer {
     @Override
     public void customize(WebSecurity web) {
         web.ignoring().requestMatchers("/api/v1/registration/**");
+        web.ignoring().requestMatchers("/api/v1/tutorials");
     }
 
 
@@ -36,6 +38,26 @@ public class WebSecurityConfig implements WebSecurityCustomizer {
         provider.setPasswordEncoder(bCryptPasswordEncoder);
         provider.setUserDetailsService(appUserService);
         return provider;
+    }
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
+        http
+                .csrf().disable()
+                .authorizeRequests()
+                    .anyRequest().authenticated()
+                .and()
+                .formLogin()
+                    .defaultSuccessUrl("/api/v1", true).permitAll(); // Przekierowanie na /api/v1 (ten sam adres podany jest w TutorialController na początku klasy)
+
+        return http.build();
+    }
+
+    public void configure(HttpSecurity http) throws Exception {
+        http.csrf().disable()
+                .authorizeRequests()
+                    .requestMatchers( "/api/v1/tutorials").permitAll() // Pozwól na dostęp do POST /api/v1/tutorials bez uwierzytelniania
+                    .anyRequest().authenticated();
+
     }
 
 
