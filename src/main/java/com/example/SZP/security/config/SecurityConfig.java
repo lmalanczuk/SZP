@@ -34,7 +34,7 @@ public class SecurityConfig implements WebSecurityCustomizer {
     public void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeRequests()
-                    .requestMatchers(HttpMethod.POST, "/api/v1/tutorials").permitAll() // Pozwól na dostęp do POST /api/v1/tutorials bez uwierzytelniania
+                    .requestMatchers("/api/v1/tutorials").permitAll() // Pozwól na dostęp do POST /api/v1/tutorials bez uwierzytelniania
                     .anyRequest().authenticated()
                 .and()
                 .formLogin().disable(); // Wyłącz formularz logowania, jeśli nie jest potrzebny
