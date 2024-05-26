@@ -68,7 +68,8 @@ public class TutorialController {
         }
     }
 
-    @PutMapping("/tutorials/{id}")
+    @PutMapping("/api/v1/tutorials/{id}")
+    @Secured("permitAll()")
     public ResponseEntity<Tutorial> updateTutorial(@PathVariable("id") long id, @RequestBody Tutorial tutorial) {
         Optional<Tutorial> tutorialData = tutorialRepository.findById(id);
 
@@ -83,7 +84,8 @@ public class TutorialController {
         }
     }
 
-    @DeleteMapping("/tutorials/{id}")
+    @DeleteMapping("/api/vi/tutorials/{id}")
+    @Secured("permitAll()")
     public ResponseEntity<HttpStatus> deleteTutorial(@PathVariable("id") long id) {
         try {
             tutorialRepository.deleteById(id);
@@ -93,7 +95,7 @@ public class TutorialController {
         }
     }
 
-    @DeleteMapping("/tutorials")
+    @DeleteMapping("/api/v1/tutorials")
     public ResponseEntity<HttpStatus> deleteAllTutorials() {
         try {
             tutorialRepository.deleteAll();
@@ -104,7 +106,7 @@ public class TutorialController {
 
     }
 
-    @GetMapping("/tutorials/published")
+    @GetMapping("/api/v1/tutorials/published")
     public ResponseEntity<List<Tutorial>> findByPublished() {
         try {
             List<Tutorial> tutorials = tutorialRepository.findByPublished(true);
