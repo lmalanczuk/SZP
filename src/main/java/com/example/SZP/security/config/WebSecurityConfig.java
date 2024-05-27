@@ -13,7 +13,11 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 @SuppressWarnings("ALL")
@@ -28,7 +32,7 @@ public class WebSecurityConfig implements WebSecurityCustomizer {
     @Override
     public void customize(WebSecurity web) {
         web.ignoring().requestMatchers("/api/v1/registration/**");
-        web.ignoring().requestMatchers("/api/v1/tutorials");
+        web.ignoring().requestMatchers("/api/v1/tutorials/**");
     }
 
 
@@ -55,10 +59,10 @@ public class WebSecurityConfig implements WebSecurityCustomizer {
     public void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeRequests()
-                    .requestMatchers( "/api/v1/tutorials").permitAll() // Pozwól na dostęp do POST /api/v1/tutorials bez uwierzytelniania
+                    .requestMatchers( "/api/v1/tutorials/**").permitAll() // Pozwól na dostęp do POST /api/v1/tutorials bez uwierzytelniania
                     .anyRequest().authenticated();
 
     }
+    }
 
 
-}

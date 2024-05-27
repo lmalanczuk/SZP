@@ -6,24 +6,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-//@CrossOrigin(origins = "http://localhost:8080")       old version, trying to delete this statement
-@SpringBootApplication
 @RestController
-//@RequestMapping("/api/v1/tutorials")
-//@RequestMapping(value = "/api/v1")
+@RequestMapping("/api/v1/tutorials")
 public class TutorialController {
 
     @Autowired
     TutorialRepository tutorialRepository;
 
-    @GetMapping("/api/v1/tutorials")
+    @GetMapping
     public ResponseEntity<List<Tutorial>> getAllTutorials(@RequestParam(required = false) String title) {
         try {
             List<Tutorial> tutorials = new ArrayList<Tutorial>();
@@ -43,7 +40,7 @@ public class TutorialController {
         }
     }
 
-    @GetMapping("/api/v1/tutorials/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<Tutorial> getTutorialById(@PathVariable("id") long id) {
         Optional<Tutorial> tutorialData = tutorialRepository.findById(id);
 
@@ -54,22 +51,20 @@ public class TutorialController {
         }
     }
 
-    @PostMapping("/api/v1/tutorials")     //próbuje się odwołać do PostMapping na początku klasy
-    @Secured("permitAll()")
+    @PostMapping
+    @PreAuthorize("permitAll()")
     public ResponseEntity<Tutorial> createTutorial(@RequestBody Tutorial tutorial) {
         try {
             Tutorial _tutorial = tutorialRepository
                     .save(new Tutorial(tutorial.getTitle(), tutorial.getDescription(), false));
-            // return new ResponseEntity<>(_tutorial, HttpStatus.CREATED);      old version
             return ResponseEntity.status(HttpStatus.CREATED).body(_tutorial);
         } catch (Exception e) {
-            // return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);     old version
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
-    @PutMapping("/api/v1/tutorials/{id}")
-    @Secured("permitAll()")
+    @PutMapping("/{id}")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<Tutorial> updateTutorial(@PathVariable("id") long id, @RequestBody Tutorial tutorial) {
         Optional<Tutorial> tutorialData = tutorialRepository.findById(id);
 
@@ -84,8 +79,8 @@ public class TutorialController {
         }
     }
 
-    @DeleteMapping("/api/vi/tutorials/{id}")
-    @Secured("permitAll()")
+    @DeleteMapping("/{id}")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<HttpStatus> deleteTutorial(@PathVariable("id") long id) {
         try {
             tutorialRepository.deleteById(id);
@@ -95,7 +90,7 @@ public class TutorialController {
         }
     }
 
-    @DeleteMapping("/api/v1/tutorials")
+    @DeleteMapping
     public ResponseEntity<HttpStatus> deleteAllTutorials() {
         try {
             tutorialRepository.deleteAll();
@@ -103,10 +98,9 @@ public class TutorialController {
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
 
-    @GetMapping("/api/v1/tutorials/published")
+    @GetMapping("/published")
     public ResponseEntity<List<Tutorial>> findByPublished() {
         try {
             List<Tutorial> tutorials = tutorialRepository.findByPublished(true);
