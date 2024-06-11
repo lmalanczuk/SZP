@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>All Tutorials</title>
+</head>
+<body>
+<h1>All Tutorials</h1>
+<table>
+  <thead>
+  <tr>
+    <th>ID</th>
+    <th>Title</th>
+    <th>Description</th>
+    <th>Published</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="tutorial : ${tutorials}">
+    <td th:text="${tutorial.id}"></td>
+    <td th:text="${tutorial.title}"></td>
+    <td th:text="${tutorial.description}"></td>
+    <td th:text="${tutorial.published}"></td>
+  </tr>
+  </tbody>
+</table>
+
+</body>
+</html>

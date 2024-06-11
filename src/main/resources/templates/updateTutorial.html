@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Update Tutorial</title>
+</head>
+<body>
+<h1>Update Tutorial</h1>
+<form action="/api/v1/tutorials/{id}" method="put" th:object="${tutorial}">
+    <input type="hidden" id="id" name="id" th:value="${tutorial.id}">
+    <label for="title">Title:</label>
+    <input type="text" id="title" name="title" th:field="${title}"><br>
+    <label for="description">Description:</label>
+    <input type="text" id="description" name="description" th:field="${description}"><br>
+    <label for="published">Published:</label>
+    <input type="checkbox" id="published" name="published" th:field="${published}" th:checked="${tutorial.published}"><br>
+    <button type="submit">Submit</button>
+</form>
+</body>
+</html>

@@ -7,6 +7,10 @@ server:
 # luaksz username: postgres password: 1qaz#EDC
 
 spring:
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    cache: false
   datasource:
     url: jdbc:postgresql://localhost:5432/registration
     username: postgres
@@ -14,7 +18,7 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect

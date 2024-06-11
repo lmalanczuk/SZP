@@ -44,14 +44,18 @@ public class WebSecurityConfig implements WebSecurityCustomizer {
         return provider;
     }
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf().disable()
                 .authorizeRequests()
-                    .anyRequest().authenticated()
+                .requestMatchers("/", "/api/v1/registration/**", "/api/v1/tutorials/**").permitAll()
+                .anyRequest().authenticated()
                 .and()
                 .formLogin()
-                    .defaultSuccessUrl("/api/v1", true).permitAll(); // Przekierowanie na /api/v1 (ten sam adres podany jest w TutorialController na początku klasy)
+                .defaultSuccessUrl("/", true).permitAll()
+                .and()
+                .logout()
+                .permitAll();
 
         return http.build();
     }
@@ -59,9 +63,13 @@ public class WebSecurityConfig implements WebSecurityCustomizer {
     public void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeRequests()
-                    .requestMatchers( "/api/v1/tutorials/**").permitAll() // Pozwól na dostęp do POST /api/v1/tutorials bez uwierzytelniania
-                    .anyRequest().authenticated();
-
+                .requestMatchers("/api/v1/tutorials/**").permitAll() // Pozwól na dostęp do POST /api/v1/tutorials bez uwierzytelniania
+                .anyRequest().authenticated()
+                .and()
+                .formLogin()
+                .loginPage("/login") // Ustaw stronę logowania
+                .defaultSuccessUrl("/addTutorial", true) // Domyślna strona po zalogowaniu
+                .permitAll();
     }
     }
 

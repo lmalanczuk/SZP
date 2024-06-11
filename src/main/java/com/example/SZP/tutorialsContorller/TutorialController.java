@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -20,65 +21,42 @@ public class TutorialController {
     @Autowired
     TutorialRepository tutorialRepository;
 
+    // Metoda do odczytu wszystkich tutoriali
     @GetMapping
-    public ResponseEntity<List<Tutorial>> getAllTutorials(@RequestParam(required = false) String title) {
-        try {
-            List<Tutorial> tutorials = new ArrayList<Tutorial>();
-
-            if (title == null)
-                tutorialRepository.findAll().forEach(tutorials::add);
-            else
-                tutorialRepository.findByTitleContaining(title).forEach(tutorials::add);
-
-            if (tutorials.isEmpty()) {
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-            }
-
-            return new ResponseEntity<>(tutorials, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public ResponseEntity<List<Tutorial>> getAllTutorials() {
+        List<Tutorial> tutorials = tutorialRepository.findAll();
+        return new ResponseEntity<>(tutorials, HttpStatus.OK);
     }
 
+    // Metoda do odczytu pojedynczego tutoriala
     @GetMapping("/{id}")
     public ResponseEntity<Tutorial> getTutorialById(@PathVariable("id") long id) {
         Optional<Tutorial> tutorialData = tutorialRepository.findById(id);
-
-        if (tutorialData.isPresent()) {
-            return new ResponseEntity<>(tutorialData.get(), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        return tutorialData.map(tutorial -> new ResponseEntity<>(tutorial, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
+    // Metoda do dodawania nowego tutoriala
     @PostMapping
     @PreAuthorize("permitAll()")
     public ResponseEntity<Tutorial> createTutorial(@RequestBody Tutorial tutorial) {
-        try {
-            Tutorial _tutorial = tutorialRepository
-                    .save(new Tutorial(tutorial.getTitle(), tutorial.getDescription(), false));
-            return ResponseEntity.status(HttpStatus.CREATED).body(_tutorial);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
+        Tutorial _tutorial = tutorialRepository.save(tutorial);
+        return ResponseEntity.status(HttpStatus.CREATED).body(_tutorial);
     }
 
+    // Metoda do aktualizacji istniejącego tutoriala
     @PutMapping("/{id}")
     @PreAuthorize("permitAll()")
     public ResponseEntity<Tutorial> updateTutorial(@PathVariable("id") long id, @RequestBody Tutorial tutorial) {
-        Optional<Tutorial> tutorialData = tutorialRepository.findById(id);
-
-        if (tutorialData.isPresent()) {
-            Tutorial _tutorial = tutorialData.get();
-            _tutorial.setTitle(tutorial.getTitle());
-            _tutorial.setDescription(tutorial.getDescription());
-            _tutorial.setPublished(tutorial.isPublished());
-            return new ResponseEntity<>(tutorialRepository.save(_tutorial), HttpStatus.OK);
+        if (tutorialRepository.existsById(id)) {
+            Tutorial _tutorial = tutorialRepository.save(tutorial);
+            return ResponseEntity.ok(_tutorial);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
+    // Metoda do usuwania tutoriala
     @DeleteMapping("/{id}")
     @PreAuthorize("permitAll()")
     public ResponseEntity<HttpStatus> deleteTutorial(@PathVariable("id") long id) {
@@ -89,28 +67,18 @@ public class TutorialController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-    @DeleteMapping
-    public ResponseEntity<HttpStatus> deleteAllTutorials() {
-        try {
-            tutorialRepository.deleteAll();
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    // Metoda do przekazania wszystkich tutoriali do widoku
+    @GetMapping("/all")
+    public String showAllTutorials(Model model) {
+        List<Tutorial> tutorials = tutorialRepository.findAll();
+        model.addAttribute("tutorials", tutorials);
+        return "allTutorials.html"; // Zwróć nazwę szablonu Thymeleaf
     }
 
-    @GetMapping("/published")
-    public ResponseEntity<List<Tutorial>> findByPublished() {
-        try {
-            List<Tutorial> tutorials = tutorialRepository.findByPublished(true);
-
-            if (tutorials.isEmpty()) {
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-            }
-            return new ResponseEntity<>(tutorials, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    // Metoda do dodawania nowego tutoriala
+    @PostMapping("/add")
+    public String addTutorial(@ModelAttribute Tutorial tutorial) {
+        tutorialRepository.save(tutorial);
+        return "redirect:/tutorials/all"; // Przekierowanie na stronę wyświetlającą wszystkie tutoriale
     }
 }
