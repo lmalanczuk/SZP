@@ -9,6 +9,6 @@ public class HomeController {
 
     @GetMapping("/")
     public String home(Model model) {
-        return "index";
+        return "redirect:/tutorials/all";
     }
 }

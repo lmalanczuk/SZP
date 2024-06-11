@@ -3,9 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <title>All Tutorials</title>
+  <link rel="stylesheet" type="text/css" th:href="@{/styles.css}">
 </head>
 <body>
 <h1>All Tutorials</h1>
+<a href="/tutorials/add">Add New Tutorial</a>
 <table>
   <thead>
   <tr>
@@ -13,6 +15,7 @@
     <th>Title</th>
     <th>Description</th>
     <th>Published</th>
+    <th>Actions</th>
   </tr>
   </thead>
   <tbody>
@@ -21,9 +24,11 @@
     <td th:text="${tutorial.title}"></td>
     <td th:text="${tutorial.description}"></td>
     <td th:text="${tutorial.published}"></td>
+    <td>
+      <a th:href="@{/tutorials/update/{id}(id=${tutorial.id})}">Edit</a>
+    </td>
   </tr>
   </tbody>
 </table>
-
 </body>
 </html>
